@@ -2,13 +2,12 @@
 #Simple Space invadors game using the pygame library
 
 import pygame
-import math
 import random
 import os
 pygame.init()
 
 
-fileDir = os.path.dirname(os.path.realpath('__file__'))
+fileDir = os.path.dirname(os.path.realpath(__file__))
 fileName = os.path.join(fileDir, "SpaceInvadersSound/fastinvader1.wav")
 music = pygame.mixer.Sound(fileName)
 #pygame.mixer.music.play(-1)
@@ -17,6 +16,16 @@ shoot.set_volume(0.1)
 explosion = pygame.mixer.Sound(os.path.join(fileDir, "SpaceInvadersSound/explosion.wav"))
 explosion.set_volume(0.1)
 
+player1_1 = os.path.join(fileDir, 'player1-1.png')
+enemy1_1 = os.path.join(fileDir, 'enemy1-1.png')
+enemy1_2 = os.path.join(fileDir, 'enemy1-2.png')
+enemy2_1 = os.path.join(fileDir, 'enemy2-1.png')
+enemy2_2 = os.path.join(fileDir, 'enemy2-2.png')
+enemy3_1 = os.path.join(fileDir, 'enemy3-1.png')
+enemy3_2 = os.path.join(fileDir, 'enemy3-2.png')
+enemy4_1 = os.path.join(fileDir, 'enemy4-1.png')
+
+highScoreDoc = os.path.join(fileDir, 'spaceInvadersHighScore.txt')
 
 class player(object):
 	global playerr
@@ -43,8 +52,12 @@ class player(object):
 		win.blit(playerr, (self.x, self.y))
 		#pygame.draw.rect(win, (0,200,0), self.hitbox, 2)
 		# Draw the amount of lives left
-		pimage = pygame.image.load('player1-1.png')
+		pimage = pygame.image.load(player1_1)
 		pimage = pygame.transform.scale(pimage, (21, 21))
+
+		for i in range(self.lives):
+			win.blit(pimage, ((20 + (25*i)), 480))
+		'''
 		if self.lives >= 1:
 			win.blit(pimage, (20,480))
 			#pygame.draw.rect(win, (0,200,0), (20, 485, 20, 10))
@@ -54,6 +67,8 @@ class player(object):
 		if self.lives >= 3:
 			win.blit(pimage, (70,480))
 			#pygame.draw.rect(win, (0,200,0), (70, 485, 20, 10))
+		'''
+		
 
 
 	def move(self):
@@ -290,7 +305,7 @@ def setupEnemys():
 	image_count = 0
 	image = enemy12
 	column = 1
-	for i in range(0,32):
+	for _ in range(32):
 		enemys.append(enemy(x,y,35,20,0.5, points, image, column))
 		y += 30
 		count += 1
@@ -361,8 +376,8 @@ def baricadeSetup():
 	height = 5
 	loop = 0
 	#barricades.append(shield(x,y,width,height))
-	for i in range(0,4):
-		for i in range(0,30):
+	for i in range(4):
+		for _ in range(30):
 			barricades.append(shield(x,y,width,height))
 			loop += 1
 			x += 5
@@ -448,42 +463,35 @@ def checkflybyehit():
 	if flybye != 1:
 
 		for bullet in bullets:
-			if flybye != 1:
-				if abs(flybye.x + (flybye.width//2) - bullet.x) < flybye.width//2 + 5  and abs(flybye.y + flybye.height//2 - bullet.y) < flybye.height//2:
-					bullets.pop(bullets.index(bullet))
-					score += flybye.point
-					flybye = 1
+			if (flybye != 1 and
+			    abs(flybye.x + (flybye.width // 2) - bullet.x) < flybye.width // 2 + 5
+			    and abs(flybye.y + flybye.height // 2 - bullet.y) < flybye.height // 2):
+				bullets.pop(bullets.index(bullet))
+				score += flybye.point
+				flybye = 1
 
 def highScore():
 	global score, high_Score
-	doc = open("spaceInvadersHighScore.txt", "a")
+	doc = open(highScoreDoc, "a")
 	doc.close()
-	doc = open("spaceInvadersHighScore.txt", "r")
+	doc = open(highScoreDoc, "r")
 	high_Score = doc.read()
 	try:
 		high_Score = int(high_Score)
-		if high_Score > score:
-			pass
-		elif high_Score <= score:
+		if high_Score <= score:
 			high_Score = score
 			doc.close()
-			doc = open("spaceInvadersHighScore.txt", "w")
-			doc.write(str(high_Score))
-			doc.close()
-
-
+			with open(highScoreDoc, "w") as doc:
+				doc.write(str(high_Score))
 	except ValueError as e:
 		doc.close()
-		doc = open("spaceInvadersHighScore.txt", "w")
-		doc.write("0")
-		doc.close()
+		with open(highScoreDoc, 'w') as doc:
+			doc.write('0')
 
 
 def edge_setup():
 	global enemys, edges
-	edges = []
-	for i in range(len(enemys)//4):
-		edges.append(i+1)
+	edges = [i+1 for i in range(len(enemys)//4)]
 	#print(edges)
 
 def adjust_enemy_rows(center, movementSpan):
@@ -528,25 +536,25 @@ def initialize():
 
 	clock = pygame.time.Clock()
 
-	playerr = pygame.image.load('player1-1.png')
+	playerr = pygame.image.load(player1_1)
 	playerr = pygame.transform.scale(playerr, (30 * screen_width//500, 30 * screen_height//500))
 
-	enemy1 = [pygame.image.load('enemy1-1.png'), pygame.image.load('enemy1-2.png')]
+	enemy1 = [pygame.image.load(enemy1_1), pygame.image.load(enemy1_2)]
 	enemy12 = []
 	for image in enemy1:
 		image = pygame.transform.scale(image, (35 * screen_width//500, 35 * screen_height//500))
 		enemy12.append(image)
-	enemy2 = [pygame.image.load('enemy2-1.png'), pygame.image.load('enemy2-2.png')]
+	enemy2 = [pygame.image.load(enemy2_1), pygame.image.load(enemy2_2)]
 	enemy22 = []
 	for image in enemy2:
 		image = pygame.transform.scale(image, (30 * screen_width//500, 30 * screen_height//500))
 		enemy22.append(image)
-	enemy3 = [pygame.image.load('enemy3-1.png'), pygame.image.load('enemy3-2.png')]
+	enemy3 = [pygame.image.load(enemy3_1), pygame.image.load(enemy3_2)]
 	enemy32 = []
 	for image in enemy3:
 		image = pygame.transform.scale(image, (30 * screen_width//500, 30 * screen_height//500))
 		enemy32.append(image)
-	enemy4 = [pygame.image.load('enemy4-1.png')]
+	enemy4 = [pygame.image.load(enemy4_1)]
 	enemy42 = []
 	for image in enemy4:
 		image = pygame.transform.scale(image, (30 * screen_width//500, 30 * screen_height//500))
